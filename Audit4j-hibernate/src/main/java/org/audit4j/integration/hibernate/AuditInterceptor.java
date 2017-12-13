@@ -49,6 +49,7 @@ public class AuditInterceptor extends EmptyInterceptor {
     // called on save
     public boolean onSave(Object entity, Serializable id, Object[] state, String[] propertyNames,
             Type[] types) {
+    	//System.out.println("on Save ...");
         if (entity.getClass().isAnnotationPresent(Audit.class)) {
             inserts.add(entity);
         }
@@ -77,18 +78,21 @@ public class AuditInterceptor extends EmptyInterceptor {
         IAuditManager manager = AuditManager.getInstance();
         try {
             for (Iterator it = inserts.iterator(); it.hasNext();) {
-                manager.audit(new EventBuilder().addAction("save " + it.next().getClass().toString())
-                        .addField(it.next().getClass().toString(), it.next()).build());
+            	Object obj = it.next();
+                manager.audit(new EventBuilder().addAction("save " + obj.getClass().toString())
+                        .addField(obj.getClass().toString(), obj).build());
             }
             for (Iterator it = updates.iterator(); it.hasNext();) {
+            	Object obj = it.next();
                 manager.audit(
-                        new EventBuilder().addAction("update " + it.next().getClass().toString())
-                                .addField(it.next().getClass().toString(), it.next()).build());
+                        new EventBuilder().addAction("update " + obj.getClass().toString())
+                                .addField(obj.getClass().toString(), obj).build());
             }
             for (Iterator it = deletes.iterator(); it.hasNext();) {
+            	Object obj = it.next();
                 manager.audit(
-                        new EventBuilder().addAction("delete " + it.next().getClass().toString())
-                                .addField(it.next().getClass().toString(), it.next()).build());
+                        new EventBuilder().addAction("delete " + obj.getClass().toString())
+                                .addField(obj.getClass().toString(), obj).build());
             }
         } finally {
             inserts.clear();
