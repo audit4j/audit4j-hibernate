@@ -22,7 +22,7 @@
 	<artifactId>audit4j-hibernate</artifactId>
 	<packaging>jar</packaging>
 	<name>Audit4j - Hibernate Integration</name>
-	<version>2.4.1</version>
+	<version>2.5.0</version>
 	<url>http://audit4j.org</url>
 	<description>Audit4j - An open-source auditing framework for Java, Hibrenate Integration</description>
 
@@ -69,7 +69,7 @@
 	<properties>
 		<junit.version>4.11</junit.version>
 		<mockito.version>2.0.90-beta</mockito.version>
-		<audit4j.version>2.4.1</audit4j.version>
+		<audit4j.version>2.5.0</audit4j.version>
 		<hibernare.version>5.2.1.Final</hibernare.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.7</maven.compiler.source>
@@ -93,6 +93,12 @@
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
 			<version>${mockito.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derby</artifactId>
+			<version>10.9.1.0</version>
 			<scope>test</scope>
 		</dependency>
 

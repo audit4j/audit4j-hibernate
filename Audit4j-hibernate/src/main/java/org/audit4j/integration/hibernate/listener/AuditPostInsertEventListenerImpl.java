@@ -17,11 +17,15 @@
 
 package org.audit4j.integration.hibernate.listener;
 
-import javax.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.audit4j.core.AuditManager;
+import org.audit4j.core.ObjectSerializer;
+import org.audit4j.core.ObjectToFieldsSerializer;
 import org.audit4j.core.annotation.Audit;
-import org.audit4j.core.dto.EventBuilder;
+import org.audit4j.core.dto.AuditEvent;
+import org.audit4j.core.dto.Field;
 import org.audit4j.integration.hibernate.bootstrap.AuditService;
 import org.hibernate.event.spi.PostInsertEvent;
 import org.hibernate.event.spi.PostInsertEventListener;
@@ -35,38 +39,55 @@ import org.hibernate.persister.entity.EntityPersister;
 public class AuditPostInsertEventListenerImpl extends BaseAuditEventListener
         implements PostInsertEventListener {
 
+    private ObjectSerializer serializer;
+
+    /**
+     * Instantiates a new audit post insert event listener impl.
+     */
+    public AuditPostInsertEventListenerImpl() {
+        super();
+        this.serializer = new ObjectToFieldsSerializer();
+    }
+
     /**
      * Instantiates a new audit post insert event listener impl.
      *
-     * @param auditService the audit service
+     * @param auditService
+     *            the audit service
      */
     public AuditPostInsertEventListenerImpl(AuditService auditService) {
         super(auditService);
+        this.serializer = new ObjectToFieldsSerializer();
         System.out.println("listerner inoit");
     }
 
-    public void init(){}
-    /* (non-Javadoc)
-     * @see org.hibernate.event.spi.PostInsertEventListener#onPostInsert(org.hibernate.event.spi.PostInsertEvent)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.hibernate.event.spi.PostInsertEventListener#onPostInsert(org.
+     * hibernate.event.spi.PostInsertEvent)
      */
     @Override
     public void onPostInsert(PostInsertEvent event) {
-        // TODO
-        // Repository check, get from Audit annotation, get from entoity table
-        // name.
-
         if (event.getEntity().getClass().isAnnotationPresent(Audit.class)) {
-            if (event.getEntity().getClass().isAnnotationPresent(Table.class)) {
-                
-            }
-            AuditManager.getInstance().audit(new EventBuilder()
-                    .addAction("save " + event.getEntity().getClass().toString())
-                    .addField(event.getEntity().getClass().toString(), event.getEntity()).build());
+
+            AuditEvent auditEvent = new AuditEvent();
+            auditEvent.setAction("save " + getEntityName(event.getEntity()));
+            List<Field> fields = new ArrayList<>();
+            serializer.serialize(fields, event.getEntity(), event.getEntity().getClass().getSimpleName(), null);
+            auditEvent.setFields(fields);
+            auditEvent.setRepository(getEntityName(event.getEntity()));
+
+            AuditManager.getInstance().audit(auditEvent);
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.hibernate.event.spi.PostInsertEventListener#requiresPostCommitHanding(org.hibernate.persister.entity.EntityPersister)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.hibernate.event.spi.PostInsertEventListener#requiresPostCommitHanding
+     * (org.hibernate.persister.entity.EntityPersister)
      */
     @Override
     public boolean requiresPostCommitHanding(EntityPersister arg0) {

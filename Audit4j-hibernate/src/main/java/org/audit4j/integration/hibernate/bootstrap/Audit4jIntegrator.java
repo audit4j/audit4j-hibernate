@@ -43,9 +43,7 @@ public class Audit4jIntegrator implements Integrator {
 
     public void integrate(Configuration configuration, SessionFactoryImplementor sessionFactory,
             SessionFactoryServiceRegistry serviceRegistry) {
-        System.out.println("Integrating......");
-
-        //final AuditService auditService = serviceRegistry.getService(AuditService.class);
+        
         final AuditService auditService = new AuditServiceImpl();
         auditService.init();
         if (!auditService.isInitialized()) {

@@ -17,8 +17,15 @@
 
 package org.audit4j.integration.hibernate.listener;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.audit4j.core.AuditManager;
-import org.audit4j.core.dto.EventBuilder;
+import org.audit4j.core.ObjectSerializer;
+import org.audit4j.core.ObjectToFieldsSerializer;
+import org.audit4j.core.annotation.Audit;
+import org.audit4j.core.dto.AuditEvent;
+import org.audit4j.core.dto.Field;
 import org.audit4j.integration.hibernate.bootstrap.AuditService;
 import org.hibernate.event.spi.PostUpdateEvent;
 import org.hibernate.event.spi.PostUpdateEventListener;
@@ -32,9 +39,16 @@ import org.hibernate.persister.entity.EntityPersister;
 public class AuditPostUpdateEventListenerImpl extends BaseAuditEventListener
         implements PostUpdateEventListener {
 
+    private ObjectSerializer serializer;
+    
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = -4308946431538400507L;
 
+    public AuditPostUpdateEventListenerImpl(){
+        super();
+        this.serializer = new ObjectToFieldsSerializer();
+    }
+    
     /**
      * Instantiates a new audit post update event listener impl.
      *
@@ -42,6 +56,7 @@ public class AuditPostUpdateEventListenerImpl extends BaseAuditEventListener
      */
     public AuditPostUpdateEventListenerImpl(AuditService auditService) {
         super(auditService);
+        this.serializer = new ObjectToFieldsSerializer();
     }
 
     /* (non-Javadoc)
@@ -49,9 +64,18 @@ public class AuditPostUpdateEventListenerImpl extends BaseAuditEventListener
      */
     @Override
     public void onPostUpdate(PostUpdateEvent event) {
-        AuditManager.getInstance().audit(new EventBuilder()
-                .addAction("update " + event.getEntity().getClass().toString())
-                .addField(event.getEntity().getClass().toString(), event.getEntity()).build());
+        if (event.getEntity().getClass().isAnnotationPresent(Audit.class)) {
+
+            AuditEvent auditEvent = new AuditEvent();
+            auditEvent.setAction("save " + getEntityName(event.getEntity()));
+            List<Field> fields = new ArrayList<>();
+            serializer.serialize(fields, event.getEntity(), event.getEntity().getClass().getSimpleName(), null);
+            auditEvent.setFields(fields);
+            auditEvent.setRepository(getEntityName(event.getEntity()));
+
+            AuditManager.getInstance().audit(auditEvent);
+        }
+        
     }
 
     /* (non-Javadoc)
