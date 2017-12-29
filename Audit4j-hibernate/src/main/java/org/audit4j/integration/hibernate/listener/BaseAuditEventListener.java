@@ -17,6 +17,8 @@
 
 package org.audit4j.integration.hibernate.listener;
 
+import javax.persistence.Table;
+
 import org.audit4j.integration.hibernate.bootstrap.AuditService;
 
 /**
@@ -25,7 +27,10 @@ import org.audit4j.integration.hibernate.bootstrap.AuditService;
 public class BaseAuditEventListener {
 
     /** The audit service. */
-    private final AuditService auditService;
+    private AuditService auditService;
+
+    public BaseAuditEventListener() {
+    }
 
     /**
      * Instantiates a new base audit event listener.
@@ -35,6 +40,18 @@ public class BaseAuditEventListener {
      */
     protected BaseAuditEventListener(AuditService auditService) {
         this.auditService = auditService;
+    }
+    
+    String getEntityName(Object entity) {
+        String actionName; 
+        if (entity.getClass().isAnnotationPresent(Table.class)) {
+            Table table = entity.getClass().getAnnotation(Table.class);
+           actionName = table.name();
+        } else {
+            actionName = entity.getClass().getSimpleName();
+        }
+        
+        return actionName;
     }
 
 }

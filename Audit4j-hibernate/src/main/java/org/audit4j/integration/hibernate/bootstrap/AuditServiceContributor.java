@@ -32,7 +32,8 @@ public class AuditServiceContributor implements ServiceContributor{
      */
     @Override
     public void contribute(StandardServiceRegistryBuilder serviceRegistryBuilder) {
+        System.out.println("contributing...");
+
         serviceRegistryBuilder.addInitiator( AuditServiceInitiator.INSTANCE );
     }
-
 }

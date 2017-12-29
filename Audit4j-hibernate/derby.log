@@ -1,0 +1,10 @@
+----------------------------------------------------------------
+Fri Dec 29 16:32:38 IST 2017:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.9.1.0 - (1344872): instance a816c00e-0160-a1f0-2542-000005fbeff0 
+on database directory D:\Development\Projects\Audit4j\Audit4j-Hibernate\Audit4j-hibernate\test  with class loader sun.misc.Launcher$AppClassLoader@6bc7c054 
+Loaded from file:/C:/Users/janithb.BRANDIXLK/.m2/repository/org/apache/derby/derby/10.9.1.0/derby-10.9.1.0.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_151-b12
+user.dir=D:\Development\Projects\Audit4j\Audit4j-Hibernate\Audit4j-hibernate
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''

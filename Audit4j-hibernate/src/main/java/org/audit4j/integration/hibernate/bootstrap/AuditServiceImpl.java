@@ -21,7 +21,6 @@ import java.util.Map;
 
 import org.audit4j.core.AuditManager;
 import org.audit4j.core.Configuration;
-import org.audit4j.core.IAuditManager;
 import org.hibernate.service.spi.Configurable;
 import org.hibernate.service.spi.Startable;
 import org.hibernate.service.spi.Stoppable;

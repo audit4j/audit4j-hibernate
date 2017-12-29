@@ -17,8 +17,15 @@
 
 package org.audit4j.integration.hibernate.listener;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.audit4j.core.AuditManager;
-import org.audit4j.core.dto.EventBuilder;
+import org.audit4j.core.ObjectSerializer;
+import org.audit4j.core.ObjectToFieldsSerializer;
+import org.audit4j.core.annotation.Audit;
+import org.audit4j.core.dto.AuditEvent;
+import org.audit4j.core.dto.Field;
 import org.audit4j.integration.hibernate.bootstrap.AuditService;
 import org.hibernate.event.spi.PostDeleteEvent;
 import org.hibernate.event.spi.PostDeleteEventListener;
@@ -31,6 +38,13 @@ import org.hibernate.persister.entity.EntityPersister;
  */
 public class AuditPostDeleteEventListenerImpl extends BaseAuditEventListener implements PostDeleteEventListener{
 
+    private ObjectSerializer serializer;
+    
+    public AuditPostDeleteEventListenerImpl(){
+        super();
+        this.serializer = new ObjectToFieldsSerializer();
+    }
+    
     /**
      * Instantiates a new audit post delete event listener impl.
      *
@@ -38,6 +52,7 @@ public class AuditPostDeleteEventListenerImpl extends BaseAuditEventListener imp
      */
     public AuditPostDeleteEventListenerImpl(AuditService auditService) {
         super(auditService);
+        this.serializer = new ObjectToFieldsSerializer();
     }
 
     /* (non-Javadoc)
@@ -45,10 +60,17 @@ public class AuditPostDeleteEventListenerImpl extends BaseAuditEventListener imp
      */
     @Override
     public void onPostDelete(PostDeleteEvent event) {
-        AuditManager.getInstance().audit(new EventBuilder()
-                .addAction("delete " + event.getEntity().getClass().toString())
-                .addField(event.getEntity().getClass().toString(), event.getEntity()).build());
-    }
+        if (event.getEntity().getClass().isAnnotationPresent(Audit.class)) {
+
+            AuditEvent auditEvent = new AuditEvent();
+            auditEvent.setAction("save " + getEntityName(event.getEntity()));
+            List<Field> fields = new ArrayList<>();
+            serializer.serialize(fields, event.getEntity(), event.getEntity().getClass().getSimpleName(), null);
+            auditEvent.setFields(fields);
+            auditEvent.setRepository(getEntityName(event.getEntity()));
+
+            AuditManager.getInstance().audit(auditEvent);
+        }    }
 
     /* (non-Javadoc)
      * @see org.hibernate.event.spi.PostDeleteEventListener#requiresPostCommitHanding(org.hibernate.persister.entity.EntityPersister)
